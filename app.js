@@ -277,7 +277,7 @@
   }
 
   // Locations map (Figma 1157-10229): each base has its own dedicated full-page map, connected by name.
-  let placesPrevView = 'home';
+  let placesPrevView = 'home', placesPrevScrollY = 0;
   // Smooth-scroll (visibly) to stop i, so the section transitions play as it moves — used by the hero cards and
   // the back-to-hero button. Self-contained (not snapTo) so it animates over any distance at a watchable pace.
   function smoothScrollToStop(i, holdFirstPoint) {
@@ -329,6 +329,7 @@
     const img = document.getElementById('placesMap');
     if (img && b && b.placesMap) { img.src = b.placesMap; img.alt = b.name; }
     placesPrevView = body.dataset.view;
+    placesPrevScrollY = window.scrollY;    // remember exactly where the map section was, to return to it
     body.dataset.view = 'places';          // pauses the home scroll-hijack + frame() while the overlay is up
     mapLoopRunning = false;
     body.classList.add('places-open');
@@ -336,6 +337,14 @@
   function closePlaces() {
     body.classList.remove('places-open');
     body.dataset.view = placesPrevView || 'home';
+    // Return to the exact map-section spot. While the overlay was up the hijack was off, so a stray drag can
+    // native-scroll the page (snapping toward the mosaic) — restore the saved position and re-sync curStop so a
+    // later resize can't jump elsewhere.
+    cancelSnap();
+    window.scrollTo(0, placesPrevScrollY);
+    let best = curStop, bd = Infinity;
+    for (let i = 0; i < NSTOPS; i++) { const d = Math.abs(stopY(i) - placesPrevScrollY); if (d < bd) { bd = d; best = i; } }
+    curStop = best;
     frame();                                // restore the map section behind
   }
 

@@ -14,6 +14,7 @@
 
 /* ---- Design tokens (EDIT HERE) ------------------------------------------- */
 :root{
+  color-scheme: light only;   /* never auto-dark; render the original light design in every OS/browser mode */
   /* Brand palette */
   --c-light-green:#ccdfae;  --c-deep-green:#00553f;  --c-plum:#392b39;
   --c-yellow:#eeea83;       --c-salmon:#f48da0;      --c-periwinkle:#9890ff;
