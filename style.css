@@ -395,13 +395,14 @@ body.menu-open .nav-burger svg{ transform:rotate(-90deg); }
 /* ============================================================================
    Locations map overlay (Figma 1050-5434) — opened by tapping the base-card thumbnail.
    ============================================================================ */
-.places{ position:fixed; inset:0; z-index:86; background:#fffcf8; overflow:hidden;
+.places{ position:fixed; inset:0; z-index:86; background:#dddfda; overflow:hidden;
   opacity:0; visibility:hidden; pointer-events:none; transition:opacity 0.28s ease;
   color:#4a4847; font-family:"Assistant","Ping HL","Arial Hebrew",Arial,sans-serif; }
 body.places-open .places{ opacity:1; visibility:visible; pointer-events:auto; }
 
-/* Each base's dedicated map fills the page (Figma 1157-10229 — the ← arrow is baked into the art, top-left). */
-.places-map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; user-select:none; }
+/* Each base's dedicated map (Figma 1157-10229 — ← arrow baked into the art, top-left). object-fit:contain so the
+   WHOLE frame fits any phone with nothing cropped; letterbox uses the map's own sea colour (#dddfda) to blend. */
+.places-map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; user-select:none; }
 /* Transparent tap-area over the baked ← arrow (top-left) — returns to the map section. */
 .places-back{ position:absolute; left:0; top:0; z-index:4; width:64px; height:64px;
   background:none; border:0; cursor:pointer; -webkit-tap-highlight-color:transparent; }
