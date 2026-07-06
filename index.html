@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>מתפ״ש — קווי המותג</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=18" />
+</head>
+<body data-view="home">
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       VIEW: HOME  (mosaic dashboard)
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="view-home" class="view active">
+
+    <!-- ───── Intro hero (first screen; scroll down reveals the mosaic) ───── -->
+    <section class="intro" id="intro">
+      <header class="intro-nav">
+        <button class="nav-burger intro-burger" type="button" aria-label="תפריט">
+          <svg viewBox="0 0 22 16" fill="none">
+            <path d="M1 1H21"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M1 8H21"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M1 15H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a class="intro-brand" href="#home" aria-label="מתפ״ש"></a>
+      </header>
+
+      <div class="intro-body">
+        <div class="intro-head">
+        <div class="intro-tagline">
+          <span>מתפ״ש - מתאם פעולות הממשלה בשטחים</span>
+        </div>
+
+        <h1 class="intro-title">
+          <span class="bold">המתפ״ש.</span><span class="monitor" aria-hidden="true"><img class="monitor-ico" src="assets/icons/hero/1.svg" alt=""></span> <span class="bold">יחידה אחת, אינסוף דרכים להשפיע.</span>
+        </h1>
+        </div>
+
+        <div class="intro-video-wrap">
+          <video class="intro-video" autoplay muted loop playsinline poster="assets/posters/hero.jpg">
+            <source src="assets/videos/hero.mp4?v=18" type="video/mp4">
+          </video>
+          <button class="intro-mute" id="introMute" type="button" aria-label="הפעלת קול" aria-pressed="false">
+            <svg class="i-off" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <svg class="i-on" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 9a4 4 0 0 1 0 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M19 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="intro-foot">
+          <div class="intro-cards">
+            <a class="intro-card" href="#">
+              <span class="intro-card-ico"><img src="assets/icons/cards/person.svg" alt=""></span>
+              <span class="intro-card-txt">התפקידים שתוכלו להשתבץ אליהם כמש״ק תיאום וקישור</span>
+            </a>
+            <a class="intro-card" href="#">
+              <span class="intro-card-ico"><img src="assets/icons/cards/map-direction.svg" alt=""></span>
+              <span class="intro-card-txt">מיקומי בסיסים</span>
+            </a>
+            <a class="intro-card" href="#">
+              <span class="intro-card-ico"><img src="assets/icons/cards/map-target.svg" alt=""></span>
+              <span class="intro-card-txt">גיוס, הכשרה ומסלולי שירות</span>
+            </a>
+          </div>
+
+          <div class="intro-cue" aria-hidden="true">
+            <span class="cue-chevrons">
+              <svg class="cue-chev" viewBox="0 0 18 10" fill="none"><path d="M0.64 0.64L8.59 8.97L16.53 0.64" stroke="currentColor" stroke-width="1.28" stroke-linecap="round"/></svg>
+              <svg class="cue-chev" viewBox="0 0 18 10" fill="none"><path d="M0.64 0.64L8.59 8.97L16.53 0.64" stroke="currentColor" stroke-width="1.28" stroke-linecap="round"/></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mosaic tiles (built by app.js from CONFIG.tiles) -->
+    <div class="nav-container" id="tiles"></div>
+
+    <!-- Single logo — travels from the nav bar to the mosaic centre on scroll (positioned by app.js) -->
+    <div class="flying-logo" aria-hidden="true"><img src="assets/icons/logo.png" alt=""></div>
+
+    <!-- Scroll cue on the mosaic frame — same bouncing chevrons as the hero/map; opacity driven by app.js
+         (visible only while the mosaic is fully assembled, hidden as the tiles fly out). -->
+    <div class="mosaic-cue" aria-hidden="true">
+      <svg viewBox="0 0 18 10" fill="none"><path d="M0.64 0.64L8.59 8.97L16.53 0.64" stroke="currentColor" stroke-width="1.28" stroke-linecap="round"/></svg>
+      <svg viewBox="0 0 18 10" fill="none"><path d="M0.64 0.64L8.59 8.97L16.53 0.64" stroke="currentColor" stroke-width="1.28" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- ───── Map screen — a scroll-driven camera panning a fixed map across the bases (Figma 1094-7308).
+         Stage = this fixed box; World = the translated map layer (video + terrain-glued pins). ───── -->
+    <section class="mapscreen" id="mapScreen" aria-hidden="true">
+      <div class="mapworld" id="mapWorld">
+        <video class="mapscreen-video" id="mapVideo" muted loop playsinline preload="auto" poster="assets/posters/map-2.jpg">
+          <source src="assets/videos/map-2.mp4" type="video/mp4">
+        </video>
+        <!-- one emblem pin per base, glued to the terrain — injected by app.js -->
+      </div>
+
+      <div class="mapscreen-scrim" aria-hidden="true"></div>
+
+      <header class="mapscreen-nav">
+        <button class="nav-burger mapscreen-burger" type="button" aria-label="תפריט">
+          <svg viewBox="0 0 22 16" fill="none">
+            <path d="M1 1H21"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M1 8H21"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M1 15H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <h2 class="mapscreen-title">איפה אנחנו נמצאים?</h2>
+
+      <div class="mapscreen-cards">
+        <div class="mapcard-row">
+          <div class="mapcard-info">
+            <h3 id="mapBaseName"></h3>
+            <p id="mapBaseDesc"></p>
+          </div>
+          <div class="mapcard-thumb">
+            <img class="mapcard-img" id="mapThumb" alt="">
+            <div class="mapcard-drops" id="mapDrops" aria-hidden="true"></div>
+            <span class="mapcard-mapbtn" aria-hidden="true">
+              <svg viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.56262 26.4376L0.56262 20.4121V0.562604L9.56262 6.5881L17.4376 0.562604L26.4376 6.5881V26.4376L17.4376 20.4121L9.56262 26.4376Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.56278 6.58781V26.4374" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17.4377 20.4121V0.562604" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mapscreen-cue" aria-hidden="true">
+        <svg viewBox="0 0 18 10" fill="none"><path d="M0.64 0.64L8.59 8.97L16.53 0.64" stroke="currentColor" stroke-width="1.28" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 18 10" fill="none"><path d="M0.64 0.64L8.59 8.97L16.53 0.64" stroke="currentColor" stroke-width="1.28" stroke-linecap="round"/></svg>
+      </div>
+
+      <!-- Jump back to the hero (top of the page) — Figma 1140-9032 -->
+      <button class="tohero mapscreen-tohero" type="button" aria-label="חזרה לראש העמוד">
+        <svg viewBox="0 0 12 13.4" fill="none"><path d="M6 12.7V1M1 6 6 1l5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </section>
+
+    <!-- ───── Recruitment & training — a click-through stepper (Figma 1109-8115). On scroll-down from the map
+         everything fades but the black card, which morphs into this section's active (black) step. ───── -->
+    <section class="giyus" id="giyusScreen" aria-hidden="true">
+      <header class="giyus-nav">
+        <button class="nav-burger giyus-burger" type="button" aria-label="תפריט">
+          <svg viewBox="0 0 22 16" fill="none">
+            <path d="M1 1H21"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M1 8H21"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M1 15H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="giyus-brand"><img src="assets/icons/logo.png" alt="מתפ״ש"></span>
+      </header>
+
+      <div class="giyus-body">
+        <h2 class="giyus-title">גיוס, הכשרה ומסלולי שירות</h2>
+        <div class="giyus-tabs">
+          <button class="gtab on" type="button">גיוס ושירות</button>
+          <button class="gtab" type="button">מסלולים נוספים</button>
+        </div>
+        <!-- steps + timeline nodes injected by app.js -->
+        <div class="giyus-stepper" id="giyusStepper"><span class="giyus-rail" aria-hidden="true"></span></div>
+      </div>
+
+      <footer class="giyus-foot">
+        <!-- Left group: jump-to-hero arrow (Figma 1140-9032) + contact, same gap as the social pair -->
+        <div class="foot-left">
+          <button class="tohero giyus-tohero" type="button" aria-label="חזרה לראש העמוד">
+            <svg viewBox="0 0 12 13.4" fill="none"><path d="M6 12.7V1M1 6 6 1l5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <a class="contact-wa" href="#"><img src="assets/icons/social/whatsapp.svg" alt=""><span>דברו איתנו</span></a>
+        </div>
+        <div class="giyus-social">
+          <a href="#" aria-label="Instagram"><img src="assets/icons/social/instagram.svg" alt=""></a>
+          <a href="#" aria-label="TikTok"><img src="assets/icons/social/tiktok.svg" alt=""></a>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ───── Locations map (Figma 1157-10229) — opens when the base-card thumbnail is tapped. Each base has its
+         own full-page map (set by app.js from MAP_BASES[...].placesMap); the ← corner returns to the map section. ───── -->
+    <section class="places" id="placesScreen" aria-hidden="true">
+      <img class="places-map-img" id="placesMap" src="assets/maps/places-nafach.png?v=6" alt="">
+      <button class="places-back" id="placesUp" type="button" aria-label="חזרה"></button>
+    </section>
+
+    <!-- Shared black card that bridges the map's info card and the stepper's active step during the scroll morph. -->
+    <div class="morph-card" id="morphCard" aria-hidden="true"></div>
+
+    <!-- Hamburger menu (full-screen overlay) — links built by app.js from CONFIG.menu -->
+    <div class="menu-overlay" id="menuOverlay">
+      <nav class="menu-items" id="menuItems"></nav>
+      <div class="menu-contact">
+        <a class="contact-wa" href="#"><img src="assets/icons/whatsapp.png" alt=""><span>דברו איתנו</span></a>
+        <a class="contact-tiktok" href="#" aria-label="TikTok"><img src="assets/icons/tiktok.png" alt="TikTok"></a>
+      </div>
+    </div>
+
+    <!-- Scroll spine — three snap segments (hero · mosaic · map) that give the page its scroll height.
+         The mosaic segment carries scroll-snap-stop:always, so a flick from the hero always halts on the
+         mosaic and a separate scroll is needed to continue to the map. Segment heights are set by app.js. -->
+    <div class="scroll-track" aria-hidden="true">
+      <div class="seg seg-hero"></div>
+      <div class="seg seg-mosaic"></div>
+      <div class="seg seg-map"></div>
+      <div class="seg seg-giyus"></div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       VIEW: ROLE  (recoloured detail page — content injected by app.js)
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="view-role" class="view">
+    <header class="role-nav">
+      <a class="back back-arrow" href="#mosaic" aria-label="חזרה">
+        <svg viewBox="0 0 24 16" fill="none">
+          <path d="M23 8H2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M9 1L2 8l7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="role-icon" id="roleIcon" aria-hidden="true"></span>
+    </header>
+
+    <main class="role-main">
+      <div class="tags" id="tags"></div>
+      <div class="desc-card">
+        <h1 class="desc-title" id="descTitle"></h1>
+        <p class="desc-text" id="descText"></p>
+      </div>
+      <div class="video-card" id="videoCard">
+        <video class="role-video" id="roleVideo" muted loop playsinline preload="auto"></video>
+        <button class="video-toggle" id="videoToggle" type="button" aria-label="הפעל או השהה">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </button>
+      </div>
+      <div class="role-pager">
+        <button class="pager-prev" type="button" aria-label="הקודם"><svg viewBox="0 0 9 14" fill="none"><path d="M7.5 1L2 7l5.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="pager-div"></span>
+        <button class="pager-next" type="button" aria-label="הבא"><svg viewBox="0 0 9 14" fill="none"><path d="M1.5 1L7 7l-5.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </main>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       VIEW: MAP  (bases selector — content injected by app.js)
+       ════════════════════════════════════════════════════════════════════ -->
+  <section id="view-map" class="view">
+    <header class="map-nav">
+      <a class="back back-arrow" href="#home" aria-label="חזרה">
+        <svg viewBox="0 0 24 16" fill="none">
+          <path d="M23 8H2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M9 1L2 8l7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="brand"><img src="assets/icons/logo.png" alt="מתפ״ש"></span>
+    </header>
+
+    <h1 class="map-title">בסיסים</h1>
+    <div class="areas" id="bases"></div>
+    <hr class="divider">
+
+    <main class="map-main">
+      <div class="map-card" id="mapCard">
+        <img id="mapImg" alt="">
+        <span class="map-empty">מפה תתווסף בקרוב</span>
+      </div>
+      <div class="desc-card">
+        <h2 class="desc-title" id="baseActivity"></h2>
+        <p class="desc-text" id="baseDesc"></p>
+      </div>
+    </main>
+  </section>
+
+  <script src="app.js?v=18"></script>
+</body>
+</html>

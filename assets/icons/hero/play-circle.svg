@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 29.3473 29.3473" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 1984078652">
+<circle id="Ellipse 1470" cx="14.6737" cy="14.6735" r="11.4771" stroke="var(--stroke-0, #4A4847)" stroke-width="0.8"/>
+<path id="Union" d="M11.4865 9.24665C11.7069 9.12569 11.9762 9.13458 12.1883 9.26952L19.7672 14.0925C19.9658 14.2189 20.086 14.4383 20.0861 14.6738C20.0861 14.9093 19.9658 15.1286 19.7672 15.2551L12.1883 20.078C11.9762 20.213 11.707 20.2219 11.4865 20.1009C11.2662 19.9799 11.1293 19.7481 11.1293 19.4967V9.85086C11.1293 9.59946 11.2662 9.36764 11.4865 9.24665ZM12.5072 18.2412L18.1133 14.6738L12.5072 11.1057V18.2412Z" fill="var(--fill-0, #4A4847)"/>
+<circle id="Ellipse 1471" cx="14.6737" cy="14.6737" r="13.9248" stroke="url(#paint0_linear_1134_8914)" stroke-width="1.49776"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_1134_8914" x1="14.6737" y1="0" x2="14.6737" y2="29.3473" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D61F76"/>
+<stop offset="1" stop-color="#FD894C"/>
+</linearGradient>
+</defs>
+</svg>

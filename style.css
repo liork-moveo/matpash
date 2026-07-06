@@ -1,0 +1,553 @@
+/* ============================================================================
+   מתפ״ש — Demo 1 (brand site)  ·  SPA stylesheet
+   One page, three views (home / role / map) toggled by app.js.
+   The active view is reflected on  <body data-view="home|role|map">.
+
+   ▸ To re-skin the whole demo, edit the COLORS + TYPE blocks in :root below.
+   ============================================================================ */
+
+/* ---- Fonts ---------------------------------------------------------------- */
+@font-face{ font-family:"Ping HL"; font-weight:700; font-style:normal; font-display:swap;
+  src:url(assets/fonts/ping-hl-bold.otf) format("opentype"); }
+@font-face{ font-family:"Ping HL"; font-weight:300; font-style:normal; font-display:swap;
+  src:url(assets/fonts/ping-hl-light.otf) format("opentype"); }
+
+/* ---- Design tokens (EDIT HERE) ------------------------------------------- */
+:root{
+  /* Brand palette */
+  --c-light-green:#ccdfae;  --c-deep-green:#00553f;  --c-plum:#392b39;
+  --c-yellow:#eeea83;       --c-salmon:#f48da0;      --c-periwinkle:#9890ff;
+  --c-pink:#fcc6c6;         --c-blue:#4458c8;        --c-ink:#272727;
+
+  /* Neutrals / UI */
+  --hero-ink:#4a4847;  --hero-line:#393735;  --btn-border:#e5e7e5;  --c-cream:#fffcf8;
+
+  /* Type */
+  --font: "Ping HL","Arial Hebrew",Arial,sans-serif;
+
+  /* Layout */
+  --edge: clamp(16px, 5vw, 24px);
+  --emblem-size: clamp(60px, 18vw, 82px);
+  --nav-pad-top: 15px;
+
+  /* Per-role colours — overwritten live by app.js when a role opens */
+  --role-bg:#00553f; --accent:#ccdfae; --hud-ink:#fff; --desc-bg:#ccdfae; --desc-ink:#4a4847;
+}
+
+/* ---- Reset / base -------------------------------------------------------- */
+*{ box-sizing:border-box; }
+html{ scrollbar-width:none; }
+html::-webkit-scrollbar{ display:none; }
+body{
+  margin:0; color:var(--hero-ink);
+  font-family:var(--font); font-weight:300;
+  -webkit-font-smoothing:antialiased; overscroll-behavior:none;
+  background:var(--c-cream);
+}
+body::-webkit-scrollbar{ display:none; }
+img{ display:block; }
+
+/* ---- SPA view switching --------------------------------------------------
+   Only the active view is shown; app.js sets body[data-view] + .active.       */
+.view{ display:none; }
+.view.active{ display:block; }
+body[data-view="home"]{ background:var(--c-cream); }   /* scroll height comes from .scroll-track (segment heights set by app.js) */
+/* Scroll spine: the segments just create the scroll height (heights set by app.js). Snapping between
+   stops is driven in JS (controlled full-page snap) — scroll gestures on the home view are intercepted. */
+.scroll-track{ position:relative; z-index:0; width:1px; pointer-events:none; }
+.scroll-track .seg{ width:1px; }
+body[data-view="role"]{ height:100vh; height:100dvh; overflow:hidden; background:var(--role-bg); color:var(--hud-ink); }
+#view-role.active{ display:flex; flex-direction:column; height:100%; }
+body[data-view="map"] { min-height:100vh; background:var(--c-cream); --ink:#4a4847; --line:#e5e7e5; color:var(--ink); }
+
+/* ============================================================================
+   SHARED — header / nav chrome
+   ============================================================================ */
+.site-nav{
+  position:fixed; top:0; left:0; right:0; z-index:70;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:var(--nav-pad-top) var(--edge); pointer-events:auto;
+}
+.site-nav .brand{ width:clamp(44px,14vw,58px); height:clamp(44px,14vw,58px); }
+.site-nav .brand img{ width:100%; height:100%; object-fit:contain; }
+.nav-left{ display:flex; align-items:center; gap:10px; }
+.nav-icon-btn{
+  background:none; border:0; padding:6px; cursor:pointer; color:var(--hero-line);
+  width:34px; height:34px; display:grid; place-items:center; text-decoration:none;
+}
+.nav-icon-btn svg{ display:block; }
+.nav-map svg{ width:23px; height:23px; }
+.nav-burger svg{ width:22px; height:16px; transition:transform .28s ease; }
+body.menu-open .nav-burger svg{ transform:rotate(-90deg); }
+
+.back-arrow{ color:inherit; text-decoration:none; display:grid; place-items:center; }
+.back-arrow svg{ width:23px; height:auto; display:block; }
+
+/* ============================================================================
+   VIEW: home — INTRO hero (first screen, scrolls away to reveal the mosaic)
+   ============================================================================ */
+.intro{
+  position:fixed; inset:0; z-index:80; background:var(--c-cream); will-change:opacity;
+  display:flex; flex-direction:column;
+  font-family:"Assistant","Ping HL","Arial Hebrew",Arial,sans-serif; color:var(--hero-ink);
+}
+.intro-nav{
+  position:sticky; top:0; z-index:2; direction:ltr;   /* burger left, logo right (matches Figma) */
+  display:flex; align-items:center; justify-content:space-between;   /* both vertically centred in the bar */
+  height:72px; padding:0 var(--edge); background:#fffcf8;            /* 72px = cyesec mobile nav height */
+}
+.intro-burger{ background:none; border:0; padding:6px; cursor:pointer; color:var(--hero-line);
+  width:34px; height:34px; display:grid; place-items:center; }
+.intro-burger svg{ width:22px; height:16px; display:block; }
+.intro-brand{ width:44px; height:44px; display:block; }   /* sits centred with breathing room in the shorter bar */
+.intro-brand img{ width:100%; height:100%; object-fit:contain; }
+
+.intro-body{
+  flex:1; min-height:0;   /* min-height:0 lets the flex children actually shrink to fit */
+  display:flex; flex-direction:column; justify-content:flex-start;
+  padding:23px var(--edge) clamp(18px,5vh,40px);   /* group top = 72px nav + 23px = 95px from the frame's top edge */
+}
+.intro-foot{ display:flex; flex-direction:column; gap:15px; flex:0 0 auto; }   /* card ↔ card ↔ cue = 15px (Figma); never shrinks */
+.intro-head{ display:flex; flex-direction:column; gap:5px; flex:0 0 auto; }   /* tagline ↔ headline = 5px = one-third of the 15px headline ↔ video gap */
+.intro-title{
+  margin:0; text-align:right; direction:rtl; line-height:1.1;
+  font-size:clamp(24px,7.6vw,30px); letter-spacing:-0.01em;
+}
+.intro-title .bold{ font-weight:700; }
+.intro-title .monitor{ display:inline-block; width:24px; height:26px; margin:0 4px; vertical-align:middle; }
+.intro-title .monitor svg,
+.intro-title .monitor img{ width:100%; height:100%; display:block; }
+
+.intro-tagline{ direction:rtl; text-align:right; }   /* aligned to the headline's right edge */
+.intro-tagline span{ font-weight:600; font-size:14px; letter-spacing:0.04em; }
+
+/* Hero video — top-aligned right beneath the headline (15px gap), then stretches down to fill all remaining
+   slack so it reaches the cards, leaving a 7.5px gap = the gap between the cards below. 12px corners. */
+.intro-video-wrap{ position:relative; flex:1 1 auto; min-height:40px; margin:15px 0 7.5px; width:100%; border-radius:12px; overflow:hidden; }
+.intro-video{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Mute / unmute toggle — top-left corner of the video. Starts muted (autoplay). */
+.intro-mute{
+  position:absolute; top:10px; left:10px; z-index:2;
+  width:36px; height:36px; padding:0; border:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.45); color:#fff; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.intro-mute svg{ width:20px; height:20px; display:block; }
+.intro-mute .i-on{ display:none; }
+.intro-mute.is-on .i-on{ display:block; }
+.intro-mute.is-on .i-off{ display:none; }
+
+/* Three separate bordered link-cards: text on the right, streamline icon on the left */
+.intro-cards{ display:flex; flex-direction:column; gap:7.5px; }   /* half the previous 15px spacing */
+.intro-card{
+  background:#fff; border:1px solid var(--hero-ink); border-radius:12px;
+  padding:20px 29px; display:flex; align-items:center; gap:20px; direction:rtl;   /* text right, icon left */
+  text-decoration:none; color:var(--hero-ink);
+}
+.intro-card-txt{ flex:1; text-align:right; font-weight:700; font-size:14px; line-height:18px; }
+.intro-card-ico{ flex:none; width:27px; height:27px; display:block; }
+.intro-card-ico img{ width:100%; height:100%; display:block; }
+
+.intro-cue{ display:flex; justify-content:center; color:var(--hero-ink); }
+.intro-cue .cue-chevrons{ display:flex; flex-direction:column; align-items:center; }
+
+/* ============================================================================
+   VIEW: home  (mosaic tiles + hero)
+   ============================================================================ */
+.nav-container{ position:fixed; inset:0; z-index:82; pointer-events:none; }   /* above the fading hero (z80) so tiles insert solid, below the logo (z85) */
+.tile{
+  position:absolute; border-radius:12px; overflow:hidden;
+  background:var(--bg); text-decoration:none; will-change:transform;
+  pointer-events:none; transform:scale(2); transform-origin:50% 50%;
+}
+/* tiles stay pointer-events:none so a scroll started over a square passes through to the page
+   (like the gaps do); taps are resolved by hit-testing the tile rects in app.js. */
+.tile-1{ left:1.41%;  top:0.59%;  width:38.42%; height:23.74%; }
+.tile-2{ left:41.07%; top:0.59%;  width:57.53%; height:23.74%; }
+.tile-3{ left:1.41%;  top:24.95%; width:57.53%; height:20.05%; }
+.tile-4{ left:60.27%; top:24.95%; width:38.42%; height:29.38%; }
+.tile-5{ left:1.41%;  top:45.63%; width:38.42%; height:29.38%; }
+.tile-6{ left:41.17%; top:54.97%; width:57.53%; height:20.05%; }
+.tile-7{ left:1.41%;  top:75.62%; width:57.53%; height:23.74%; }
+.tile-8{ left:60.27%; top:75.62%; width:38.42%; height:23.74%; }
+.tile-title{
+  position:absolute; top:clamp(8px,2.6vw,14px); right:clamp(11px,3.2vw,16px);
+  color:var(--fg); font-size:14px; line-height:1.2; text-align:right;
+  text-transform:uppercase; white-space:nowrap;
+}
+.tile-label{ display:block; font-weight:400; }
+.tile-role{ display:block; font-weight:700; }
+.tile-icon{
+  position:absolute; left:clamp(13px,4vw,18px); bottom:clamp(11px,3.6vw,16px);
+  width:clamp(46px,15vw,63px); height:clamp(46px,15vw,63px);
+  background-color:var(--fg);   /* icon takes the tile's text colour */
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-position:center; mask-position:center;
+  -webkit-mask-size:contain; mask-size:contain;
+}
+
+.flying-logo{
+  position:fixed; top:0; left:0; width:44px; height:44px;   /* constant size — same in the nav and at the mosaic centre */
+  z-index:85; opacity:0; pointer-events:none; will-change:transform;
+}
+.flying-logo img{ width:100%; height:100%; object-fit:contain; display:block; }
+
+/* scroll-cue chevrons — shared by the intro hero */
+.cue-chevrons{ display:flex; flex-direction:column; align-items:center; }
+/* Dropbox-style cascade: a continuous gentle down-up bob, never stopping.
+   The top chevron leads by 75ms (Dropbox's "Offset 75") so it dips first and
+   "pushes" the lower one; the 75ms phase offset means the pair is never fully
+   still — there's always at least a tiny bit of movement. */
+.cue-chev{ width:18px; height:10px; display:block;
+  animation:chevCascade 1.8s ease-in-out infinite; }
+.cue-chev:nth-child(2){ animation-delay:0.075s; }
+.cue-chev + .cue-chev{ margin-top:-4px; }
+/* Fluid continuous bob; the lower chevron lags 75ms so the top leads. */
+@keyframes chevCascade{
+  0%   { transform:translateY(0); }
+  50%  { transform:translateY(15px); }
+  100% { transform:translateY(0); }
+}
+@media (prefers-reduced-motion: reduce){ .cue-chev{ animation:none !important; } }
+
+/* Scroll cue on the mosaic frame — mirrors the map cue; app.js fades it in/out with the assembly phase.
+   z84 sits above the tiles (z82) so it reads on top of the mosaic, below the flying logo (z85). */
+.mosaic-cue{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:84;
+  display:flex; flex-direction:column; align-items:center; color:#fbf1e8;
+  opacity:0; pointer-events:none; will-change:opacity; }
+.mosaic-cue svg{ width:18px; height:10px; display:block; animation:chevCascade 1.8s ease-in-out infinite; }
+.mosaic-cue svg:nth-child(2){ margin-top:-4px; animation-delay:0.075s; }
+
+/* ============================================================================
+   VIEW: home — MAP screen (sits fixed beneath the mosaic and fades in as the tiles disperse; Figma 1094-6336)
+   Revealed by app.js: opacity driven by the exit scroll phase — no slide, the map is directly underneath.
+   ============================================================================ */
+.mapscreen{
+  position:fixed; inset:0; z-index:81;              /* above the faded hero (z80), below the tiles (z82) */
+  background:#fbf1e8; overflow:hidden; pointer-events:none;
+  opacity:0; visibility:hidden; will-change:opacity;
+  color:#4a4847; font-family:"Assistant","Ping HL","Arial Hebrew",Arial,sans-serif;
+}
+/* World layer — holds the big map + terrain-glued pins; its size is set and it is translated by app.js. */
+.mapworld{ position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform; pointer-events:none; }
+.mapscreen-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  pointer-events:none; user-select:none; display:block; background:#d9cbb8; }
+/* Cream scrim over the top so the header + base card stay readable above the terrain (Figma Rectangle 10315). */
+.mapscreen-scrim{ position:absolute; top:0; left:0; right:0; height:44%; z-index:2; pointer-events:none;
+  background:linear-gradient(to bottom, rgba(251,241,232,0.97) 0%, rgba(251,241,232,0.86) 30%, rgba(251,241,232,0) 100%); }
+.mapscreen-nav{ position:absolute; top:24px; left:var(--edge); z-index:4; }
+.mapscreen-burger{ background:none; border:0; padding:6px; cursor:pointer; color:#4a4847;
+  width:34px; height:34px; display:grid; place-items:center; pointer-events:auto; }
+.mapscreen-burger svg{ width:22px; height:16px; display:block; }
+
+.mapscreen-title{ position:absolute; top:92px; left:var(--edge); right:var(--edge); z-index:3;
+  margin:0; text-align:right; direction:rtl; font-weight:700; font-size:22px; color:#4a4847; }
+
+.mapscreen-cards{ position:absolute; top:138px; left:0; right:0; z-index:3;
+  display:flex; flex-direction:column; align-items:center; gap:10px; }
+.mapcard-row{ display:flex; gap:10px; align-items:stretch; width:min(332px,92vw); }
+.mapcard-info{ flex:1 1 0; min-width:0; height:128px; overflow:hidden;
+  background:#4a4847; border-radius:12px; padding:14px 16px; color:#fff; text-align:right; direction:rtl;
+  display:flex; flex-direction:column; justify-content:center; gap:6px; }
+.mapcard-info h3{ margin:0; font-size:15.5px; font-weight:700; line-height:1.2; }
+.mapcard-info p{ margin:0; font-size:13px; font-weight:300; line-height:1.25; }
+.mapcard-thumb{ position:relative; flex:0 0 110px; height:128px; border-radius:8px; overflow:hidden;
+  background:#c9c7bd; border:1px solid rgba(74,72,71,0.1);   /* 110×128 matches the thumb art — no crop, so drop overlays land true */
+  pointer-events:auto; cursor:pointer; }   /* tappable — opens the locations map */
+.mapcard-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+/* Animated drops laid over the ones printed into the thumbnail — each gently floats up and down like a
+   classic map marker. The outer span is centred on the baked drop; the inner span carries the bob so the
+   centring is never disturbed, and it's sized a touch larger than the printed drop to keep it covered. */
+.mapcard-drops{ position:absolute; inset:0; z-index:2; pointer-events:none; }
+/* Folded-map icon in the top-left corner — hints the thumbnail opens the locations map. app.js sets its chip
+   background to the map's corner colour (so lines/elements don't show through the icon) and the icon colour for
+   contrast (white on a dark corner, black on a light one). The chip matches the map, so it reads as no chip. */
+.mapcard-mapbtn{ position:absolute; left:8px; top:8px; z-index:3; width:29px; height:29px;
+  border-radius:7px; display:grid; place-items:center; color:#fff; }
+.mapcard-mapbtn svg{ width:22px; height:22px; display:block; }
+.thumb-drop{ position:absolute; transform:translate(-50%,-50%); }
+.thumb-drop-i{ display:block; will-change:transform; animation:markerFloat 2.4s ease-in-out infinite;
+  filter:drop-shadow(0 3px 2px rgba(0,0,0,0.22)); }
+.thumb-drop-i svg{ display:block; width:100%; height:auto; }
+@keyframes markerFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+@media (prefers-reduced-motion: reduce){ .thumb-drop-i{ animation:none; } }
+
+/* Terrain-glued location pins — the emblem in a white teardrop. Positioned in world space by app.js
+   (left/top = markerX·side, markerY·side); only the pin for the current base is faded in. */
+.wpin{ position:absolute; z-index:1; width:41.8px; height:41.8px;
+  transform:translate(-50%,-50%); pointer-events:none; opacity:0; }
+/* Ground marker (Figma "Group 1261158521") — a dark dot in a white ring in a faint radial halo.
+   Static, like the emblem teardrop above it. */
+.wpin-mark{ position:absolute; inset:0; border-radius:50%; display:grid; place-items:center;
+  background:radial-gradient(circle at 50% 50%, rgba(74,72,71,0.02) 0%, rgba(74,72,71,0.2) 100%); }
+.wpin-mark::before{ content:""; width:16.9px; height:16.9px; border-radius:50%; background:#fffcf8; }   /* white ring */
+.wpin-dot{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:10.2px; height:10.2px; border-radius:50%; background:#4a4847; }                                /* dark dot */
+/* Emblem teardrop (Figma "Group 1261158488") — exact drop path + logo, static, tip resting on the dot. */
+.wpin-pin{ position:absolute; left:50%; bottom:50%; transform:translateX(-50%); z-index:1;
+  width:56px; height:65.84px; filter:drop-shadow(0 7px 12px rgba(0,0,0,0.22)); }
+.wpin-drop{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.wpin-logo{ position:absolute; left:50%; top:43.7%; transform:translate(-50%,-50%);
+  width:42px; height:42px; object-fit:contain; display:block;
+  opacity:var(--emblem-op, 0); }   /* pin stays empty until the mosaic logo settles in (driven by app.js) */
+
+/* Back-to-hero button (Figma 1140-9032) — a solid dark #4a4847 circle with a light #fdfaf6 up-arrow; jumps to
+   the top of the page. Shared by the map section (bottom-left) and the stepper section (bottom-left, above the footer). */
+.tohero{ position:absolute; left:14px; bottom:14px; z-index:5; width:45px; height:45px; border-radius:50%;
+  background:#4a4847; border:0; color:var(--c-cream); cursor:pointer; display:grid; place-items:center;
+  pointer-events:auto; -webkit-tap-highlight-color:transparent; }   /* always the bottom-left corner */
+/* Up arrow — points to the hero at the top; sized to match Figma 1094-7057 (~12.15×13.4px), hero-bg colour */
+.tohero svg{ width:12px; height:13.4px; display:block; }
+.tohero svg path{ stroke-width:1.5; }
+
+.mapscreen-cue{ position:absolute; left:50%; bottom:24px; transform:translateX(-50%); z-index:4;
+  display:flex; flex-direction:column; align-items:center; color:#4a4847; }
+.mapscreen-cue svg{ width:18px; height:10px; display:block; animation:chevCascade 1.8s ease-in-out infinite; }
+.mapscreen-cue svg:nth-child(2){ margin-top:-4px; animation-delay:0.075s; }
+
+/* ============================================================================
+   VIEW: home — RECRUITMENT & TRAINING stepper (Figma 1109-8115). A fixed layer that
+   fades in as the map fades out; the map's black card morphs into the active step.
+   ============================================================================ */
+.giyus{ position:fixed; inset:0; z-index:83; background:#fffcf8; overflow:hidden;
+  opacity:0; visibility:hidden; will-change:opacity; pointer-events:none;
+  display:flex; flex-direction:column;
+  color:#4a4847; font-family:"Assistant","Ping HL","Arial Hebrew",Arial,sans-serif; }
+.giyus.on{ pointer-events:auto; }
+
+.giyus-nav{ flex:0 0 auto; height:64px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--edge); background:#fffcf8; direction:ltr; position:relative; z-index:3; }
+.giyus-burger{ background:none; border:0; padding:6px; color:#4a4847; cursor:pointer;
+  width:34px; height:34px; display:grid; place-items:center; }
+.giyus-burger svg{ width:22px; height:16px; display:block; }
+.giyus-brand img{ height:38px; width:auto; display:block; opacity:var(--nav-logo-op, 1); }   /* appears as the flying logo lands (app.js) */
+
+.giyus-body{ flex:1 1 auto; min-height:0; overflow:hidden; display:flex; flex-direction:column;
+  padding:16px var(--edge) 0; direction:rtl; }
+.giyus-title{ margin:0 0 29px; font-weight:700; font-size:22px; line-height:1.2; text-align:right; }
+.giyus-tabs{ display:flex; gap:6px; justify-content:flex-start; margin-bottom:25px; }   /* RTL start = right-aligned */
+.gtab{ height:34px; padding:0 18px; border-radius:8px; border:0.5px solid transparent;
+  background:#f6f6f6; color:#4a4847; font-family:inherit; font-weight:700; font-size:14px;
+  letter-spacing:0.5px; cursor:pointer; white-space:nowrap; }
+.gtab.on{ background:#4a4847; color:#fff; border-color:#fff; }
+
+/* Stepper — cards on the left, a dashed timeline rail with nodes down the right */
+.giyus-stepper{ position:relative; padding-right:44px; display:flex; flex-direction:column; gap:10px; }
+/* Solid rail line — app.js sets its top/height to span the first→last node centre. Each node's opaque disc
+   masks the part behind it, so the line reads as segments that meet each marker's outer edge (no gap). */
+.giyus-rail{ position:absolute; right:17px; top:0; height:0; width:0; border-right:1px solid #4a4847; }
+.gstep{ position:relative; }
+.gstep-card{ position:relative; width:100%; text-align:right; direction:rtl; cursor:pointer;
+  border:1px solid #4a4847; background:transparent; border-radius:12px; color:#4a4847;
+  font-family:inherit; padding:0 22px; min-height:63px; display:flex; flex-direction:column;
+  justify-content:center; gap:3px;
+  /* every height-driving prop shares ONE duration + ease-in-out so the whole step grows/shrinks at a single
+     uniform rate — the list glides as one piece and the heading stays centred */
+  transition:background 0.6s ease, color 0.6s ease, padding 0.6s cubic-bezier(0.65,0,0.35,1);
+  -webkit-tap-highlight-color:transparent; outline:none; }   /* no blue tap-flash on touch */
+.gstep-t{ font-weight:700; font-size:26px; line-height:1.1; transition:font-size 0.6s cubic-bezier(0.65,0,0.35,1); }
+/* grid 0fr→1fr animates the description's ACTUAL height (no max-height plateau), so it grows in step with the photo */
+.gstep-d{ margin:0; display:grid; grid-template-rows:0fr; opacity:0;
+  font-weight:300; font-size:14px; line-height:1.25; text-align:right;
+  transition:grid-template-rows 0.6s cubic-bezier(0.65,0,0.35,1), opacity 0.4s ease; }
+.gstep-d-in{ overflow:hidden; min-height:0; }
+/* Photo inline under the active card (same uniform curve as the other height-driving props) */
+.gstep-media{ margin-top:5px; height:0; opacity:0; border-radius:10px; overflow:hidden;
+  transition:height 0.6s cubic-bezier(0.65,0,0.35,1), opacity 0.45s ease; }
+.gstep-media img{ width:100%; height:100%; object-fit:cover; display:block; }
+/* Rotating media set (טירונות) — stacked slides that crossfade inside the same rounded square */
+.gstep-media--slides{ position:relative; }
+.gstep-media--slides .gstep-slide{ position:absolute; inset:0; opacity:0; transition:opacity 0.8s ease; }
+.gstep-media--slides .gstep-slide.on{ opacity:1; }
+
+/* Active (expanded) step — the black card with heading + description, and the photo right below it */
+.gstep.active .gstep-card{ background:#4a4847; color:#fff; border-color:#4a4847; padding:21px 22px; }
+.gstep.active .gstep-t{ font-size:14px; text-transform:uppercase; }
+.gstep.active .gstep-d{ grid-template-rows:1fr; opacity:1; }
+.gstep.active .gstep-media{ height:128px; opacity:1; }
+
+/* Timeline node — hollow ring when idle, icon badge when active; top-aligned to its card. The node IS the
+   marker (its own opaque disc masks the rail behind it), sized exactly to the ring/badge so the line meets its
+   outer edge with no gap. translateX(50%) keeps the centre on the rail whatever the size (Figma 1139-8921). */
+.gstep-node{ position:absolute; right:-27px; top:0; transform:translateX(50%);
+  width:11.6px; height:11.6px; border-radius:50%; border:1px solid #4a4847; background:#fffcf8;
+  box-sizing:border-box; display:grid; place-items:center; }
+.gstep-node img{ display:none; }
+.gstep.active .gstep-node{ width:43px; height:43px; border-radius:30px; background:#fff; }
+.gstep.active .gstep-node img{ display:block; width:20px; height:20px; }
+
+/* Footer — [back-to-hero arrow + contact] grouped at the LEFT, Instagram + TikTok at the RIGHT. */
+.giyus-foot{ flex:0 0 auto; height:66px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--edge); direction:ltr; }
+.foot-left{ display:flex; align-items:center; gap:8px; }        /* arrow ↔ contact gap = the TikTok ↔ Instagram gap */
+.giyus-foot .giyus-tohero{ position:static; }                  /* flows in the left group instead of floating in the corner */
+.giyus-foot .contact-wa{ display:flex; align-items:center; gap:5px; height:43px; padding:0 20px;
+  background:#fff; border:1px solid #4a4847; border-radius:100px; color:#4a4847;
+  font-size:14px; font-weight:300; text-decoration:none; white-space:nowrap; }
+.giyus-foot .contact-wa img{ width:32px; height:32px; }
+.giyus-social{ display:flex; gap:8px; }
+.giyus-social a{ width:43px; height:43px; background:#fff; border:1px solid #4a4847; border-radius:30px;
+  display:grid; place-items:center; }
+.giyus-social a img{ width:17px; height:17px; display:block; }
+
+/* ============================================================================
+   Locations map overlay (Figma 1050-5434) — opened by tapping the base-card thumbnail.
+   ============================================================================ */
+.places{ position:fixed; inset:0; z-index:86; background:#fffcf8; overflow:hidden;
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity 0.28s ease;
+  color:#4a4847; font-family:"Assistant","Ping HL","Arial Hebrew",Arial,sans-serif; }
+body.places-open .places{ opacity:1; visibility:visible; pointer-events:auto; }
+
+/* Each base's dedicated map fills the page (Figma 1157-10229 — the ← arrow is baked into the art, top-left). */
+.places-map-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; user-select:none; }
+/* Transparent tap-area over the baked ← arrow (top-left) — returns to the map section. */
+.places-back{ position:absolute; left:0; top:0; z-index:4; width:64px; height:64px;
+  background:none; border:0; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+
+
+/* Morph bridge — a plain black rounded rect placed/sized by app.js during the map→stepper scroll. */
+.morph-card{ position:fixed; z-index:87; background:#4a4847; border-radius:12px;
+  opacity:0; visibility:hidden; pointer-events:none; will-change:transform,width,height,opacity; }
+
+/* hamburger menu overlay */
+.menu-overlay{
+  position:fixed; inset:0; z-index:90; background:#fff;
+  display:flex; flex-direction:column; justify-content:space-between;
+  padding:clamp(82px,12.5vh,104px) var(--edge) clamp(20px,3.6vh,30px);
+  opacity:0; visibility:hidden; transition:opacity .28s ease;
+}
+body.menu-open .menu-overlay{ opacity:1; visibility:visible; }
+body.menu-open .nav-map{ opacity:0; pointer-events:none; }
+.menu-items{ display:flex; flex-direction:column; gap:11px; }
+.menu-item{
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  min-height:clamp(70px,11vh,94px); padding:10px 12px;
+  border:1px solid var(--hero-ink); border-radius:12px;
+  color:var(--hero-line); font-weight:700; font-size:clamp(18px,6.6vw,26px);
+  line-height:1.1; text-transform:uppercase; text-decoration:none;
+}
+.menu-contact{ display:flex; direction:ltr; align-items:center; justify-content:space-between; width:100%; }
+.contact-wa{
+  display:flex; align-items:center; gap:6px; height:54px; padding:0 20px;
+  border:1px solid var(--btn-border); border-radius:100px; color:var(--hero-line);
+  font-weight:300; font-size:12.7px; text-decoration:none; white-space:nowrap;
+}
+.contact-wa img{ width:32px; height:32px; }
+.contact-tiktok img{ width:37px; height:37px; }
+
+/* ============================================================================
+   VIEW: role  (recoloured detail + video)
+   ============================================================================ */
+.role-nav{ position:sticky; top:0; z-index:30; height:64px; background:var(--role-bg); }
+.role-nav .back, .role-nav .role-icon{ position:absolute; top:22px; display:grid; place-items:center; }
+.role-nav .back{ left:20px; width:30px; height:30px; color:var(--hud-ink); }
+.role-nav .role-icon{ right:20px; width:25px; height:25px; background-color:var(--card-bg, #dce6e2);
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center;
+  -webkit-mask-size:contain; mask-size:contain; }
+
+.role-main{
+  width:min(331px,88vw); margin:0 auto; padding:12px 0 18px;
+  flex:1; min-height:0;
+  display:flex; flex-direction:column; align-items:stretch; gap:8px;
+}
+.tags{ display:flex; flex-wrap:wrap; justify-content:flex-start; gap:4px; }   /* right-aligned (RTL) to the card/video edge */
+.tag{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  height:34px; padding:0 19px; border:0; color:var(--card-ink, #111); background:var(--card-bg, #dce6e2);
+  border-radius:100px; font-weight:300; font-size:14px;
+  letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap;
+}
+.tag .tag-pin{ width:9px; height:13px; flex:none; display:block; }
+
+body[data-view="role"] .desc-card{
+  background:var(--card-bg, #dce6e2); border:0; border-radius:12px; min-height:128px;
+  padding:20px 18px; display:flex; flex-direction:column; justify-content:center; gap:6px;
+}
+body[data-view="role"] .desc-title{
+  margin:0; color:var(--card-ink, #111); font-weight:700; font-size:18px; line-height:1.2; text-align:right;
+}
+body[data-view="role"] .desc-text{
+  margin:0; color:var(--card-ink, #111); font-weight:400; font-size:15px; line-height:1.3; text-align:right;
+}
+.video-card{
+  position:relative; width:100%; flex:1 1 auto; min-height:0;
+  border-radius:23px; overflow:hidden; background:#0a0a0a;
+}
+/* pager pill: filled with the card colour, chevrons + divider in the page colour (Figma).
+   Divider sits at the exact centre; each arrow is centred in its half (equal gaps to edge & divider). */
+.role-pager{ position:relative; display:flex; direction:ltr; align-items:center;
+  margin:14px auto 0; width:96px; height:30px; border-radius:15px;
+  background:var(--card-bg, #dce6e2); color:var(--role-bg, #4a4847); }
+.role-pager button{ flex:1; background:none; border:0; padding:0; cursor:pointer; color:inherit;
+  height:100%; display:grid; place-items:center; }
+.role-pager svg{ width:8px; height:12px; display:block; }
+.role-pager .pager-div{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:1px; height:16px; background:currentColor; }
+.role-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#0a0a0a; }
+.video-toggle{
+  position:absolute; inset:0; z-index:3; border:0; padding:0; cursor:pointer;
+  background:transparent; transition:background .18s ease;
+}
+.video-toggle .icon{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:62px; height:62px; border-radius:50%; background:rgba(18,18,18,0.42); color:#fff;
+  display:grid; place-items:center; opacity:0; transition:opacity .18s ease;
+}
+.video-toggle .icon svg{ width:26px; height:26px; margin-inline-start:3px; }
+.video-card:not(.is-playing) .video-toggle{ background:rgba(0,0,0,0.18); }
+.video-card:not(.is-playing) .video-toggle .icon{ opacity:1; }
+
+/* ============================================================================
+   VIEW: map  (bases selector)
+   ============================================================================ */
+.map-nav{ position:relative; height:60px; }
+.map-nav .back, .map-nav .brand{ position:absolute; top:20px; display:grid; place-items:center; }
+.map-nav .back{ left:20px; width:30px; height:30px; color:var(--ink); }
+.map-nav .brand{ right:18px; width:40px; height:40px; }
+.map-nav .brand img{ width:100%; height:100%; object-fit:contain; }
+.map-title{
+  margin:0; padding:4px var(--edge) 8px; text-align:right;
+  font-weight:700; font-size:18px; line-height:1.2; text-transform:uppercase;
+}
+.areas{ display:flex; gap:6px; overflow-x:auto; padding:0 var(--edge) 10px; scrollbar-width:none; }
+.areas::-webkit-scrollbar{ display:none; }
+.area-btn{
+  flex:0 0 auto; height:46px; padding:0 19px; border-radius:27px;
+  border:1px solid var(--line); background:#fff; color:var(--ink);
+  font-family:inherit; font-weight:700; font-size:15.5px; letter-spacing:0.04em;
+  text-transform:uppercase; white-space:nowrap; cursor:pointer; transition:background .15s, color .15s;
+}
+.area-btn.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+.divider{ height:1px; background:var(--line); border:0; margin:0; }
+.map-main{
+  width:min(360px,93vw); margin:0 auto; padding:10px 0 12px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.map-card{
+  position:relative; aspect-ratio:1;
+  height:min(calc(100svh - 300px), min(360px, 93vw));
+  width:auto; max-width:100%; margin:0 auto;
+  border-radius:23px; overflow:hidden; background:#fff;
+}
+.map-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.map-card.is-empty{ display:grid; place-items:center; background:#f3f3f1; }
+.map-card.is-empty img{ display:none; }
+.map-empty{
+  display:none; color:#a9a8a6; font-weight:700; font-size:15px;
+  letter-spacing:0.04em; text-transform:uppercase;
+}
+.map-card.is-empty .map-empty{ display:block; }
+body[data-view="map"] .desc-card{
+  background:#fff; border:1px solid var(--line); border-radius:12px; min-height:128px;
+  padding:18px 17px; display:flex; flex-direction:column; justify-content:center; gap:6px;
+}
+body[data-view="map"] .desc-title{
+  margin:0; font-weight:700; font-size:15.5px; line-height:1.2;
+  text-align:right; text-transform:uppercase; color:var(--ink);
+}
+body[data-view="map"] .desc-text{
+  margin:0; font-weight:300; font-size:14px; line-height:1.3;
+  text-align:right; text-transform:uppercase; color:var(--ink);
+}
